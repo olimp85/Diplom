@@ -13,3 +13,5 @@
 ![](https://github.com/olimp85/Diplom/blob/main/target.jpg)
 Также был создан HTTP router
 ![](https://github.com/olimp85/Diplom/blob/main/router.jpg)
+Создан Application load balancer
+![](https://github.com/olimp85/Diplom/blob/main/test%20balanser.jpg)
