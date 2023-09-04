@@ -8,3 +8,8 @@
 ![](https://github.com/olimp85/Diplom/blob/main/balanser.jpg)
 ![](https://github.com/olimp85/Diplom/blob/main/netology%20forever.jpg)
 
+Были созданы Target Group и Backend Group
+![](https://github.com/olimp85/Diplom/blob/main/backend.jpg)
+![](https://github.com/olimp85/Diplom/blob/main/target.jpg)
+Также был создан HTTP router
+![](https://github.com/olimp85/Diplom/blob/main/router.jpg)
