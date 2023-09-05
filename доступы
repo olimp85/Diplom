@@ -1,1 +1,9 @@
+***Elasticsearch***
+user: elastic
+password: Q+3DND1aRgy0uwhxk=d1
 
+***Bastion*** & ***Terraform***
+user: user
+ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCoA6mo+8NzsMCDjNAiifXk8nAwmYgrjPd1i3PUwkKvkFxXGWJbwReWo2jBZ3xCsnUQgdOWFV0aLmfyw8+BIJ5qRUBdmpigO6dcbjddzcIHxpcqMzKso6vOOP2oY64Ta/VCEW/ZvWKDg0t7VYHKdYyrhu/LzWiV3UWyRsRHQXmrLB4ftOvCu97Wiezf8oYCJGE5sudXk1eGXF6KRCsXrShmxbn49Lvc51OpdKNbY2tSwV079mMEuYLnTrSPQB4bMV2NxxLIIY8mgeSv1j/XSb07TSmHeStdRU/nArZ1tke6B2dAJc8zeztmFMobV7m14K0gwzGkSr8e4+pJeqcVNWPj rsa-key-20230820
+
+Все манипуляции делал от ***root***
