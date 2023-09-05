@@ -24,3 +24,15 @@
 ![](https://github.com/olimp85/Diplom/blob/main/zabbix-agent%20web1.jpg)
 ![](https://github.com/olimp85/Diplom/blob/main/zabbix-agent%20web2.jpg)
 
+Cоздана ВМ, на которой развернут Elasticsearch 192.168.2.19. Установлен filebeat в ВМ к web1 и web2, настроена отправка access.log, error.log nginx в Elasticsearch.
+
+Создана ВМ, на которой развернута Kibana 192.168.2.7, сконфигурировано соединение с Elasticsearch.
+![](https://github.com/olimp85/Diplom/blob/main/elastic.jpg)
+![](https://github.com/olimp85/Diplom/blob/main/kibana.jpg)
+![](https://github.com/olimp85/Diplom/blob/main/elastic%201.jpg)
+
+Настроены Security Groups на входящий трафик только к нужным портам
+![](https://github.com/olimp85/Diplom/blob/main/olimpsec.jpg)
+![](https://github.com/olimp85/Diplom/blob/main/olimpbas.jpg)
+
+ВМ 192.168.2.14 реализует концепцию bastion host
