@@ -35,4 +35,9 @@ Cоздана ВМ, на которой развернут Elasticsearch 192.168
 ![](https://github.com/olimp85/Diplom/blob/main/olimpsec.jpg)
 ![](https://github.com/olimp85/Diplom/blob/main/olimpbas.jpg)
 
-ВМ 192.168.2.14 реализует концепцию bastion host
+ВМ 192.168.2.11 реализует концепцию bastion host
+![](https://github.com/olimp85/Diplom/blob/main/bastion.jpg)
+
+Созданы снимки дисков всех ВМ
+![](https://github.com/olimp85/Diplom/blob/main/snapshot.jpg)
+
