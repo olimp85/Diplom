@@ -15,3 +15,12 @@
 ![](https://github.com/olimp85/Diplom/blob/main/router.jpg)
 Создан Application load balancer
 ![](https://github.com/olimp85/Diplom/blob/main/test%20balanser.jpg)
+
+На сервере 192.168.2.37 установлен ​​Zabbix и настроены два Дашборда на сервера WEB1 и WEB2.
+![](https://github.com/olimp85/Diplom/blob/main/dashbord%20web1.jpg)
+![](https://github.com/olimp85/Diplom/blob/main/dashbord%20web2.jpg)
+
+На серверах web1 и web2 установлены и настроены zabbix-agent.
+![](https://github.com/olimp85/Diplom/blob/main/zabbix-agent%20web1.jpg)
+![](https://github.com/olimp85/Diplom/blob/main/zabbix-agent%20web2.jpg)
+
