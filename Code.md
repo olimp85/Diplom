@@ -394,3 +394,380 @@ resource "yandex_compute_snapshot_schedule" "default" {
              ]
 
 }
+```
+
+# ansible
+
+***bastion***                  
+
+nano /etc/ansible/roles/bastion/tasks/main.yml
+
+```python
+---
+
+- name: Copy id_rsa
+  copy:
+    src: /home/vm1/.ssh/id_rsa
+    dest: /home/user/.ssh
+    owner: user
+    group: user
+    mode: '0600'
+```
+
+***Elasticsearch***
+
+nano /etc/ansible/roles/Elasticsearch/tasks/main.yml
+
+```python
+---
+
+- name: Create User elasticsearch
+  user:
+    name: elasticsearch
+    create_home: no
+    shell: /bin/false
+
+- name: Create directories for elasticsearch
+  file:
+    path: "/tmp/elasticsearch"
+    state: directory
+
+- name: Download elasticsearch
+  copy:
+    src: "/etc/ansible/roles/Elasticsearch/static/elasticsearch-8.8.2-amd64.deb"
+    dest: /tmp/elasticsearch
+
+- name: Install java
+  apt:
+    name=default-jre
+    state=latest
+
+- name: Install elasticsearch
+  apt:
+    deb: "/tmp/elasticsearch/elasticsearch-8.8.2-amd64.deb"
+
+- name: Copy CA to ansible
+  ansible.builtin.fetch:
+    src: /etc/elasticsearch/certs/http_ca.crt
+    dest: /etc/ansible/roles/Elasticsearch/static/
+```
+
+***filebeat***
+
+nano /etc/ansible/roles/filebeat/tasks/main.yml
+
+```python
+---
+- name: Create directories for filebeat
+  file:
+    path: "/tmp/filebeat"
+    state: directory
+
+- name: Download filebeat
+  copy:
+    src: "/etc/ansible/roles/filebeat/static/filebeat-8.5.2-amd64.deb"
+    dest: /tmp/filebeat
+
+
+- name: Install filebeat
+  apt:
+    deb: "/tmp/filebeat/filebeat-8.5.2-amd64.deb"
+
+- name: Copy template
+  copy:
+    src: "/etc/ansible/roles/filebeat/templates/filebeat.yml"
+    dest: /etc/filebeat
+
+- name: Copy module
+  copy:
+    src: "/etc/ansible/roles/filebeat/templates/nginx.yml"
+    dest: /etc/filebeat/modules.d/
+
+- name: Copy ca
+  copy:
+    src: "/etc/ansible/roles/kibana/static/http_ca.crt"
+    dest: /etc/filebeat
+```
+
+nano /etc/ansible/roles/filebeat/templates/filebeat.yml
+
+```python
+
+---
+
+filebeat.config.modules:
+  enabled: true
+  path: /etc/filebeat/modules.d/*.yml
+
+output.elasticsearch:
+  hosts: ["https://192.168.2.4:9200"]
+  username: "elastic"
+  password: "gJ56Irber-Jh8QOio=YS"
+  ssl:
+    enabled: true
+    certificate_authorities: ["/etc/filebeat/http_ca.crt"]
+```
+
+nano /etc/ansible/roles/filebeat/templates/nginx.yml
+
+```python
+- module: nginx
+  access:
+    enabled: true
+    var.paths: ["/var/log/nginx/access.log*"]
+  error:
+    enabled: true
+    var.paths: ["/var/log/nginx/error.log*"]
+```
+
+***kibana***
+
+nano /etc/ansible/roles/kibana/tasks/kibana
+
+```python
+---
+
+- name: Create directories for kibana
+  file:
+    path: "/tmp/kibana"
+    state: directory
+
+- name: Download kibana
+  copy:
+    src: "/etc/ansible/roles/kibana/static/kibana-8.8.2-amd64.deb"
+    dest: /tmp/kibana
+
+- name: Install kibana
+  apt:
+    deb: "/tmp/kibana/kibana-8.8.2-amd64.deb"
+
+- name: Copy template
+  copy:
+    src: "/etc/ansible/roles/kibana/templates/kibana.yml"
+    dest: /etc/kibana
+
+- name: Create directories for ca
+  file:
+    path: "/etc/kibana/certs/"
+    state: directory
+
+- name: Copy ca
+  copy:
+    src: "/etc/ansible/roles/kibana/static/http_ca.crt"
+    dest: /etc/kibana/certs/
+```
+
+  ***nginx***
+
+  nano /etc/ansible/roles/nginx/tasks/main.yml
+
+```python
+  ---
+- name: Install Nginx Web Server on Debian Family
+  apt:
+    name=nginx
+    state=latest
+  when:
+    ansible_os_family == "Debian"
+  notify:
+    - nginx systemd
+
+- name: Replace nginx.conf
+  template:
+    src=templates/nginx.conf
+    dest=/etc/nginx/nginx.conf
+
+- name: Create home directory
+  file:
+    path: /var/lib/www
+    state: directory
+
+- name: copy the nginx config file and restart nginx
+  copy:
+    src: /etc/ansible/roles/nginx/templates/static_site.cfg
+    dest: /etc/nginx/sites-available/static_site.cfg
+
+- name: create symlink
+  file:
+    src: /etc/nginx/sites-available/static_site.cfg
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+#    become: true
+
+- name: copy the content of the web site
+  copy:
+    src: /etc/ansible/roles/nginx/static/
+    dest: /var/lib/www
+```
+
+***zabbix***
+
+nano /etc/ansible/roles/zabbix/tasks/main.yml
+
+```python
+
+---
+- name: Install a .deb package from the internet
+  ansible.builtin.apt:
+    deb: https://repo.zabbix.com/zabbix/6.0/debian/pool/main/z/zabbix-release/zabbix-release_6.0-4+debian11_all.deb
+    update_cache: yes
+
+- name: Install a list of packages
+  ansible.builtin.apt:
+    pkg:
+    - zabbix-server-pgsql
+    - zabbix-frontend-php
+    - php7.4-pgsql
+    - zabbix-apache-conf
+    - zabbix-sql-scripts
+    - zabbix-agent
+    - python3-psycopg2
+
+- name: Create zabbix user
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_user:
+    name: "zabbix"
+    password: "qwer1Qwert"
+    role_attr_flags: SUPERUSER
+
+- name: Create a new database with name "zabbix"
+  become: true
+  become_user: postgres
+  community.postgresql.postgresql_db:
+    name: zabbix
+    owner: zabbix
+
+- name: Load dump in DB "zabbix"
+  become: true
+  become_user: root
+  shell: zcat /usr/share/zabbix-sql-scripts/postgresql/server.sql.gz | sudo -u zabbix psql zabbix
+
+- name: Insert after regex, backup, and validate
+  blockinfile:
+    path: /etc/zabbix/zabbix_server.conf
+    backup: yes
+    marker: "# {mark} ANSIBLE MANAGED BLOCK "
+    insertbefore: '# DBPassword='
+    block: |
+      DBPassword=qwer1Qwert
+
+- name: zabbix-server
+  systemd:
+    name: zabbix-server
+    state: restarted
+```
+
+***zabbix-agent***
+
+nano /etc/ansible/roles/zabbix_agent/tasks/main.yml
+
+```python
+
+---
+
+- name: Install a .deb package from the internet
+  ansible.builtin.apt:
+    deb: https://repo.zabbix.com/zabbix/6.0/debian/pool/main/z/zabbix-release/zabbix-release_6.0-4+debian11_all.deb
+    update_cache: yes
+
+- name: Install a list of packages
+  ansible.builtin.apt:
+    pkg:
+    - zabbix-agent
+
+- name: Insert after regex, backup, and validate
+  blockinfile:
+    path: /etc/zabbix/zabbix_agentd.conf
+    backup: yes
+    marker: "# {mark} ANSIBLE MANAGED BLOCK "
+    insertbefore: '# Server='
+    block: |
+      Server=192.168.2.37
+
+- name: zabbix-agent reload
+  systemd:
+    name: zabbix-agent
+    state: restarted
+```
+
+***ansible/play.yml***
+
+
+nano /etc/ansible/play.yml
+
+```python
+---
+- hosts: all
+  become: yes
+  become_method:
+    sudo
+  tasks:
+    - name: "Update cache & Full system update"
+      apt:
+        update_cache: true
+        upgrade: dist
+        cache_valid_time: 3600
+        force_apt_get: true
+
+- hosts: web_servers
+  become:
+    true
+  become_method:
+    sudo
+  become_user:
+    root
+  remote_user:
+    user
+  roles:
+   - role: nginx
+   - role: filebeat
+     tags: filebeat
+
+  vars:
+    nginx_user: www-data
+
+- hosts: Elasticsearch
+  user: user
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+    - role: Elasticsearch
+      tags: elastic
+
+- hosts: kibana
+  user: user
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+    - role: kibana
+      tags: kibana
+
+- hosts: bastion
+  user: user
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+    - role: bastion
+      tags: bastion
+
+- hosts: zabbix
+  user: user
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+    - role: zabbix
+      tags: zabbix
+
+- hosts: web_servers
+  user: user
+  become: true
+  become_method: sudo
+  become_user: root
+  roles:
+    - role: zabbix_agent
+      tags: zabbix_agent
